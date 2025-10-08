@@ -26,6 +26,11 @@
             text-align: center;
         }
 
+        h1 {
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+
         #question-element {
             font-size: 1.4em;
             margin-bottom: 25px;
@@ -57,10 +62,16 @@
             background-color: #c7d2fe;
         }
 
-        .option-btn.selected {
-            background-color: #4f46e5;
+        .option-btn.correct {
+            background-color: #34d399; /* Green */
             color: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background-color: #f87171; /* Red */
+            color: white;
+            font-weight: bold;
         }
 
         .control-btn {
@@ -81,21 +92,9 @@
 
         #result-container {
             margin-top: 20px;
-            font-size: 1.5em;
+            font-size: 1.3em;
             font-weight: 700;
             color: #10b981;
-        }
-
-        /* Styling for correct/incorrect feedback (hidden initially) */
-        .option-btn.correct {
-            background-color: #34d399; /* Green */
-            color: white;
-            font-weight: bold;
-        }
-        .option-btn.incorrect {
-            background-color: #f87171; /* Red */
-            color: white;
-            font-weight: bold;
         }
     </style>
 </head>
@@ -104,9 +103,7 @@
     <div id="quiz-container">
         <h1>Interactive Quiz</h1>
         <div id="question-element"></div>
-        
-        <div class="options-container" id="options-container">
-            </div>
+        <div class="options-container" id="options-container"></div>
 
         <button class="control-btn" id="next-btn" onclick="nextQuestion()" disabled>Next Question</button>
 
@@ -114,7 +111,7 @@
     </div>
 
     <script>
-        // JavaScript for Quiz Logic
+        // --- Quiz Data ---
         const quizData = [
             {
                 question: "What does HTML stand for?",
@@ -147,8 +144,7 @@
         const nextButton = document.getElementById('next-btn');
         const resultContainer = document.getElementById('result-container');
 
-        // --- Core Quiz Functions ---
-
+        // --- Start Quiz ---
         function startQuiz() {
             currentQuestionIndex = 0;
             score = 0;
@@ -157,24 +153,22 @@
             nextButton.disabled = true;
             resultContainer.style.display = 'none';
             document.querySelector('h1').textContent = 'Interactive Quiz';
-            
             displayQuestion();
         }
 
+        // --- Display Questions ---
         function displayQuestion() {
-            // Check if quiz is finished
             if (currentQuestionIndex >= quizData.length) {
                 showResult();
                 return;
             }
 
             const currentQuiz = quizData[currentQuestionIndex];
-            questionEl.textContent = ${currentQuestionIndex + 1}. ${currentQuiz.question};
+            questionEl.textContent = `${currentQuestionIndex + 1}. ${currentQuiz.question}`;
             optionsContainer.innerHTML = '';
             isAnswered = false;
             nextButton.disabled = true;
 
-            // Create option buttons
             currentQuiz.options.forEach(option => {
                 const button = document.createElement('button');
                 button.textContent = option;
@@ -184,52 +178,52 @@
             });
         }
 
+        // --- Handle Option Selection ---
         function selectOption(selectedButton, selectedAnswer, correctAnswer) {
-            if (isAnswered) return; // Prevent changing selection after answering
-
+            if (isAnswered) return;
             isAnswered = true;
             nextButton.disabled = false;
-            
-            // Disable all buttons to prevent further selection
+
+            // Disable all option buttons
             Array.from(optionsContainer.children).forEach(btn => btn.disabled = true);
 
-            // Check if the answer is correct
+            // Check answer correctness
             if (selectedAnswer === correctAnswer) {
                 score++;
                 selectedButton.classList.add('correct');
             } else {
                 selectedButton.classList.add('incorrect');
-                // Highlight the correct answer
-                Array.from(optionsContainer.children).find(btn => btn.textContent === correctAnswer).classList.add('correct');
+                Array.from(optionsContainer.children)
+                    .find(btn => btn.textContent === correctAnswer)
+                    .classList.add('correct');
             }
 
-            // Change button text for the last question
             if (currentQuestionIndex === quizData.length - 1) {
                 nextButton.textContent = "Show Results";
             }
         }
 
+        // --- Next Question ---
         function nextQuestion() {
             currentQuestionIndex++;
             displayQuestion();
         }
 
+        // --- Show Final Results ---
         function showResult() {
-            questionEl.textContent = "Quiz Finished!";
+            questionEl.textContent = "🎉 Quiz Finished!";
             optionsContainer.innerHTML = '';
             nextButton.textContent = "Restart Quiz";
             nextButton.onclick = startQuiz;
             nextButton.disabled = false;
 
             resultContainer.style.display = 'block';
-            resultContainer.innerHTML = Your Score: ${score} out of ${quizData.length} questions correct.;
-
+            resultContainer.innerHTML = `Your Score: ${score} / ${quizData.length}`;
             document.querySelector('h1').textContent = 'Results';
         }
 
-        // Start the quiz when the page loads
+        // --- Initialize Quiz ---
         document.addEventListener('DOMContentLoaded', startQuiz);
     </script>
 </body>
-
 </html>
